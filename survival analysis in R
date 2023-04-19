@@ -1,0 +1,93 @@
+
+# Part 1 - Survival Analysis
+
+Load the survival library
+
+```{r}
+library(survival)
+library(ggplot2)
+library(lubridate)
+```
+
+Lets explore the data
+
+```{r}
+hist(ovarian$futime, main = "Ovarian Cancer Follow up time", xlab = "Time")
+
+```
+We can see that the follow up time is positive.
+
+Lets look at the  number of patients in each arm of the clinical trial (rx)
+
+```{r}
+table(ovarian$rx)
+```
+
+This is a small data set with 26 patients.
+
+Now lets answer the research question? **Is there are difference in survival curves between the different treatment groups?**
+
+```{r}
+ov.rx.survfit<-survfit(Surv(ovarian$futime, ovarian$fustat)~ ovarian$rx, data=ovarian)
+
+ov.rx.survdiff<-survdiff(Surv(ovarian$futime, ovarian$fustat)~ ovarian$rx, data=ovarian)
+
+ov.rx.survdiff
+
+plot(ov.rx.survfit, mark.time = TRUE, col=c("black", "grey75"), lty=1:2)
+title(main="Survival Curve by Treatment Group", xlab="time", ylab = "Proportion of Patients still alive")
+legend("topright", c("1", "2"), lty=1:2, col=c("black", "grey75"))
+```
+In this case the curves are fairly similar and the p-value is not significatnt. In this case the treatment does not affect the survival curves.
+We can also see that the half life (time till 50% of the pateints are left) is around 600.
+
+Maybe the performance status does?
+
+```{r}
+ov.ps.survfit<-survfit(Surv(ovarian$futime, ovarian$fustat)~ ovarian$ecog.ps, data=ovarian)
+
+ov.ps.survdiff<-survdiff(Surv(ovarian$futime, ovarian$fustat)~ ovarian$ecog.ps, data=ovarian)
+
+ov.ps.survdiff
+
+plot(ov.ps.survfit, mark.time = TRUE, col=c("black", "grey75"), lty=1:2)
+title(main="Survival Curve by Performance status", xlab="time", ylab = "Proportion of Patients still alive")
+legend("topright", c("1", "2"), lty=1:2, col=c("black", "grey75"))
+```
+
+This also does not make a difference in the survival curve.
+
+***
+
+# Part 2 - Time Series
+
+Initially using the R object:
+
+```{r}
+load("airquality")
+names(airp)
+```
+
+THis data consists of two columns: Airpassenger numbers and date.
+Lets explore the data:
+
+
+```{r}
+summary(airp)
+```
+
+We can see that the values are all positive, but as it is a time series we need to look at this data in order - so we can plot it to see...
+
+```{r}
+ggplot(airp, aes(x=date, y=AirPassengers)) + geom_line() + 
+  ggtitle("Air Passenger Numbers over time") + theme_classic()
+```
+
+Visual inspection of this graph shows that there seems to be a clear trend (increasing) but there seems to be a cycle (seasonality). There is a low point each year towards the beginning (after the winter holidays?)
+
+Using decompose we can break this down.In this case I am using the original data from the R library - AirPassengers and using decompose directly on it.
+
+```{r}
+plot(decompose(AirPassengers))
+```
+We can see that there is a trend, and it is going up. We can also observe that there is a seasonal cycle (makes sense as it should match busy travel times during the year) we can also see that the random component does not have a trend (as it is oscillating round 0) but the random (error) component is larger at the end of the series. This can indicate that there are other factors (hidden or confounding) that affect the AirPasesenger numbers.
