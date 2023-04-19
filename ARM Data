@@ -1,0 +1,91 @@
+
+# Part 1 - ARM data
+
+```{r}
+arm.folding<-read.csv("arm.csv")
+```
+
+This data contains two columns only
+
+```{r}
+summary(arm.folding)
+```
+The two categorical variables are the gender of the participant and the arm crossed on top.
+
+```{r}
+table(arm.folding$gender, arm.folding$armcross)
+```
+
+We can test for independence using $\chi^2$, as the expected number in the cells is more than 5. Note that if that were not the case R would complain!
+
+```{r}
+arm.table<-table(arm.folding$gender, arm.folding$armcross)
+chisq.test(arm.table)
+```
+
+We can see from here that this is not significant.
+
+*** 
+If you wanted to run Fisher's exact:
+
+```{r}
+fisher.test(arm.table)
+```
+
+Note: it is not necessary in this case but wanted to show that it would return the similar conclusion.
+***
+
+# Part 2 - back to titanic
+
+```{r}
+titanic<-read.csv("titanic-all-cols.csv")
+```
+
+Recall from week 7 - we need to make sure that the data is read in correctly:
+
+```{r}
+summary(titanic)
+```
+
+We need to make sure that both Survived and Pclass are treated as categorical, so I use as.factor to make sure that is the case.
+
+```{r}
+titanic$Survived<-as.factor(titanic$Survived)
+titanic$Pclass<-as.factor(titanic$Pclass)
+```
+
+
+Lets look at table analysis for Survived vs Pclass
+
+Are survival status and Passenger class independent? THat is the $H_0$ that we are testing here
+
+```{r}
+table(titanic$Survived, titanic$Pclass)
+```
+
+Lets use Chisq
+
+```{r}
+chisq.test(table(titanic$Survived, titanic$Pclass))
+```
+
+We can see that there is a significant relationship between Passenger travel class and survival status. 
+In other words the probability of surviviing depends on the passenger's travel class.
+
+***
+
+## OPTIONAL: Using the gmodels library:
+
+The Gmodels library is useful if you are used to SAS PROC means or PROC summary.
+
+```{r}
+library(gmodels)
+```
+
+
+```{r}
+CrossTable(titanic$Survived, titanic$Pclass, digits=2, prop.r = TRUE, prop.c = TRUE,  prop.chisq = FALSE, 
+           chisq = TRUE, fisher = TRUE)
+```
+
+
