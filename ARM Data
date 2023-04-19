@@ -16,7 +16,7 @@ The two categorical variables are the gender of the participant and the arm cros
 table(arm.folding$gender, arm.folding$armcross)
 ```
 
-We can test for independence using $\chi^2$, as the expected number in the cells is more than 5. Note that if that were not the case R would complain!
+We can test for independence using $\chi^2$, as the expected number in the cells is more than 5. 
 
 ```{r}
 arm.table<-table(arm.folding$gender, arm.folding$armcross)
